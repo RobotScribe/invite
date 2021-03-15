@@ -14,9 +14,10 @@ const Button: React.FC<Props> = ({ onClick, children, isLight }) => {
       onClick={onClick}
       as="button"
       bg={isLight ? "blue.300" : "blue.900"}
-      color="white"
+      color={isLight ? "blue.300" : "grey.500"}
       borderRadius="10"
-      padding="10px 22px"
+      paddingX="5"
+      paddingY="2"
       fontWeight="700"
       _hover={{ bg: "blue.500" }}
     >
