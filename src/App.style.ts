@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled from "styled-components";
 
 export const AppContainer = styled.div`
   display: flex;
@@ -7,4 +7,4 @@ export const AppContainer = styled.div`
   align-items: center;
   justify-content: center;
 `;
-AppContainer.displayName = 'AppContainer';
+AppContainer.displayName = "AppContainer";
