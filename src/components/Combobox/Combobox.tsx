@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useState } from 'react';
+import React, { ChangeEvent, useMemo, useState } from 'react';
 import { Input } from '@chakra-ui/input';
 import { searchUser, User } from '../../entities/user';
 import { Container, InputContainer, UserOptionContainer, UserOption, UserOptionName, Email, StyledInviteChip } from './Combobox.style';
@@ -34,11 +34,27 @@ const Combobox: React.FC<Props> = ({ selectedItems, onSelectItem, className, onR
   const [userOptions, setUserOptions] = useState<User[]>([]);
   const [value, setValue] = useState<string>("");
 
+  const userIds = useMemo<(string | null)[]>(
+    () => selectedItems.map(item => isInviteEmail(item) ? null : (item as User).id),
+    [selectedItems]
+  );
+
+  const userEmails = useMemo<string[]>(
+    () => selectedItems.map(getInviteEmail).concat(userOptions.map(user => user.email)),
+    [selectedItems, userOptions]
+  );
+
+  const shouldDisplayInput = (value: string) => isEmail(value) && !userEmails.includes(value);
+
+
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
     setValue(value);
     searchUser(event.target.value).then(
-      (users: User[]) => setUserOptions(users)
+      (users: User[]) => {
+        const filteredUsers = users.filter(user => !userIds.includes(user.id))
+        setUserOptions(filteredUsers)
+      }
     )
   }
 
@@ -70,7 +86,7 @@ const Combobox: React.FC<Props> = ({ selectedItems, onSelectItem, className, onR
         />
       </InputContainer>
       <UserOptionContainer>
-        {isEmail(value) && (
+        {shouldDisplayInput(value) && (
           <UserOption onClick={() => onOptionChoose(value)}>
             <Email />
             <UserOptionName>
