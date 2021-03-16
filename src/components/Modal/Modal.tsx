@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Modal, ModalBody, ModalContent, ModalHeader, ModalOverlay } from '@chakra-ui/modal';
+import { Modal as ChakraModal, ModalBody, ModalContent, ModalHeader, ModalOverlay } from '@chakra-ui/modal';
 
 interface Props {
   onClose: () => void;
@@ -8,9 +8,9 @@ interface Props {
   children: React.ReactNode;
 }
 
-const Button: React.FC<Props> = ({ onClose, isOpen, children }) => {
+const Modal: React.FC<Props> = ({ onClose, isOpen, children }) => {
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
+    <ChakraModal isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
       <ModalHeader>Modal Title</ModalHeader>
       <ModalContent width="none" maxWidth="none" margin="auto" padding="16" bg="blue.500">
@@ -19,8 +19,8 @@ const Button: React.FC<Props> = ({ onClose, isOpen, children }) => {
               {children}
           </ModalBody>
       </ModalContent>
-  </Modal>
+  </ChakraModal>
   );
 };
 
-export default Button;
+export default Modal;
