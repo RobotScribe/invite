@@ -33,6 +33,11 @@ const getInviteEmail = (invite: Invite): string => {
 const Combobox: React.FC<Props> = ({ selectedItems, onSelectItem, className, onRemoveItem }) => {
   const [userOptions, setUserOptions] = useState<User[]>([]);
   const [value, setValue] = useState<string>("");
+  const [hoverIndex, setHoverIndex] = useState<number | null>(null);
+
+  useEffect(() => {
+    setHoverIndex(null);
+  }, [userOptions.length]);
 
   const userIds = useMemo<(string | null)[]>(
     () => selectedItems.map(item => isInviteEmail(item) ? null : (item as User).id),
@@ -44,8 +49,12 @@ const Combobox: React.FC<Props> = ({ selectedItems, onSelectItem, className, onR
     [selectedItems, userOptions]
   );
 
-  const shouldDisplayInput = (value: string) => isEmail(value) && !userEmails.includes(value);
+  const shouldDisplayInput = useCallback(
+    () => isEmail(value) && !userEmails.includes(value),
+    [userEmails, value]
+  );
 
+  const numberOfDisplayedOptions = shouldDisplayInput() ? 1 : userOptions.length;
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
@@ -67,8 +76,11 @@ const Combobox: React.FC<Props> = ({ selectedItems, onSelectItem, className, onR
   useEffect(() => {
     const handler = (event: KeyboardEvent) => {
       if (event.key === 'Enter') {
-        if(userOptions.length === 1) {
-          onOptionChoose(userOptions[0]);
+        if (numberOfDisplayedOptions === 1) {
+          onOptionChoose(shouldDisplayInput() ? value : userOptions[0]);
+        }
+        if (numberOfDisplayedOptions > 1 && hoverIndex !== null) {
+          onOptionChoose(userOptions[hoverIndex]);
         }
       }
     };
@@ -76,7 +88,7 @@ const Combobox: React.FC<Props> = ({ selectedItems, onSelectItem, className, onR
     return () => {
       window.removeEventListener('keydown', handler);
     };
-  }, [userOptions, onOptionChoose]);
+  }, [userOptions, onOptionChoose, value, shouldDisplayInput, numberOfDisplayedOptions, hoverIndex]);
 
   useEffect(() => {
     const handler = (event: KeyboardEvent) => {
@@ -91,6 +103,29 @@ const Combobox: React.FC<Props> = ({ selectedItems, onSelectItem, className, onR
       window.removeEventListener('keydown', handler);
     };
   }, [selectedItems, onRemoveItem, value]);
+
+  useEffect(() => {
+    const handler = (event: KeyboardEvent) => {
+      if (event.key === 'ArrowUp') {
+        event.preventDefault();
+        if (hoverIndex !== null) {
+          setHoverIndex(Math.max(hoverIndex - 1, 0));
+        }
+      }
+      if (event.key === 'ArrowDown') {
+        event.preventDefault();
+        if (hoverIndex === null && numberOfDisplayedOptions > 0) {
+          setHoverIndex(0);
+        } else if (hoverIndex !== null) {
+          setHoverIndex(Math.min(hoverIndex + 1, numberOfDisplayedOptions - 1));
+        }
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => {
+      window.removeEventListener('keydown', handler);
+    };
+  }, [userOptions, hoverIndex, numberOfDisplayedOptions]);
 
   return (
     <Container className={className}>
@@ -114,16 +149,15 @@ const Combobox: React.FC<Props> = ({ selectedItems, onSelectItem, className, onR
         />
       </InputContainer>
       <UserOptionContainer>
-        {shouldDisplayInput(value) && (
-          <UserOption onClick={() => onOptionChoose(value)}>
+        {shouldDisplayInput() ? (
+          <UserOption hovered={hoverIndex === 0} onClick={() => onOptionChoose(value)}>
             <Email />
             <UserOptionName>
               {value}
             </UserOptionName>
           </UserOption>
-        )}
-        {userOptions.map(user => (
-          <UserOption key={user.id} onClick={() => onOptionChoose(user)}>
+        ) : userOptions.map((user, index) => (
+          <UserOption hovered={index === hoverIndex} key={user.id} onClick={() => onOptionChoose(user)}>
             <UserChip size={24} name={user.firstName} />
             <UserOptionName>
               {user.firstName}

@@ -4,7 +4,6 @@ import email from "../../icons/email.svg";
 import InviteChip from '../InviteChip';
 
 export const Container = styled.div`
-  width: 100%;
   position: relative;
 `;
 Container.displayName = "Container";
@@ -26,8 +25,8 @@ export const UserOptionContainer = styled.div`
 `;
 UserOptionContainer.displayName = "UserOptionContainer";
 
-export const UserOption = styled.button`
-  border: 1px solid ${colors.grey[900]};
+export const UserOption = styled.button<{ hovered: boolean }>`
+  border: 1px solid;
   background-color: ${colors.blue[900]};
   margin-top: 1px;
   width: 100%;
@@ -35,6 +34,8 @@ export const UserOption = styled.button`
   display: flex;
   align-items: center;
   padding: 15px;
+
+  border-color: ${({ hovered }) => colors.grey[hovered ? 750 : 900]};
 
   &:hover {
     border-color: ${colors.grey[750]};
