@@ -67,8 +67,6 @@ const Combobox: React.FC<Props> = ({ selectedItems, onSelectItem, className, onR
   useEffect(() => {
     const handler = (event: KeyboardEvent) => {
       if (event.key === 'Enter') {
-        event.preventDefault();
-
         if(userOptions.length === 1) {
           onOptionChoose(userOptions[0]);
         }
@@ -79,6 +77,20 @@ const Combobox: React.FC<Props> = ({ selectedItems, onSelectItem, className, onR
       window.removeEventListener('keydown', handler);
     };
   }, [userOptions, onOptionChoose]);
+
+  useEffect(() => {
+    const handler = (event: KeyboardEvent) => {
+      if (event.key === 'Backspace') {
+        if(value.length === 0 && selectedItems.length > 0) {
+          onRemoveItem(selectedItems[selectedItems.length - 1]);
+        }
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => {
+      window.removeEventListener('keydown', handler);
+    };
+  }, [selectedItems, onRemoveItem, value]);
 
   return (
     <Container className={className}>
