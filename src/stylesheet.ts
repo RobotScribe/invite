@@ -7,7 +7,7 @@ export const colors = {
   grey: {
     500: "#DBE1E6",
     700: "#8C9DB5",
-    750: "#8C9DB55D",
+    750: "#8C9DB599",
     900: "#383C56",
   },
   pink: {

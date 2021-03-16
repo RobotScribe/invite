@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import { colors } from "../../stylesheet";
+import email from "../../icons/email.svg";
 
 export const Container = styled.div`
   width: 100%;
@@ -46,3 +47,8 @@ export const UserOptionName = styled.div`
   font-size: 12px;
 `;
 UserOptionName.displayName = "UserOptionName";
+
+export const Email = styled.img.attrs({ src: email })`
+  width: 15px;
+  margin-left: 5px;
+`;
