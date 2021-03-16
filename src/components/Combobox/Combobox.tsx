@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useMemo, useState } from 'react';
+import React, { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import { Input } from '@chakra-ui/input';
 import { searchUser, User } from '../../entities/user';
 import { Container, InputContainer, UserOptionContainer, UserOption, UserOptionName, Email, StyledInviteChip } from './Combobox.style';
@@ -58,11 +58,27 @@ const Combobox: React.FC<Props> = ({ selectedItems, onSelectItem, className, onR
     )
   }
 
-  const onOptionChoose = (option: Invite) => {
+  const onOptionChoose = useCallback((option: Invite) => {
     setValue("");
     setUserOptions([]);
     onSelectItem(option);
-  }
+  }, [onSelectItem])
+
+  useEffect(() => {
+    const handler = (event: KeyboardEvent) => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+
+        if(userOptions.length === 1) {
+          onOptionChoose(userOptions[0]);
+        }
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => {
+      window.removeEventListener('keydown', handler);
+    };
+  }, [userOptions, onOptionChoose]);
 
   return (
     <Container className={className}>
