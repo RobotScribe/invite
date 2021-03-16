@@ -3,7 +3,8 @@ import { useDisclosure } from '@chakra-ui/hooks';
 import { AppContainer, ContentTitle, ContentDescription, FooterContainer, StyledCombobox } from './App.style';
 import Button from './components/Button'
 import Modal from './components/Modal'
-import { Invite } from './components/Combobox/Combobox';
+import { Invite, isInviteEmail } from './components/Combobox/Combobox';
+import { User } from './entities/user';
 
 
 const App = () => {
@@ -14,6 +15,16 @@ const App = () => {
         setInvites([...invites, invite]);
     }
 
+
+
+  const onRemoveItem = (item: Invite) => {
+    if (isInviteEmail(item)) {
+      setInvites(invites.filter(invite => invite !== item));
+      return;
+    }
+    setInvites(invites.filter(invite => (invite as User).id !== (item as User).id));
+}
+
     return (
         <AppContainer>
             <Button onClick={onOpen}>Invite teammates</Button>
@@ -22,7 +33,7 @@ const App = () => {
                     <ContentTitle>Email invite</ContentTitle>
                     <ContentDescription>Send members an email invitation to join this workspace</ContentDescription>
                     <FooterContainer>
-                        <StyledCombobox selectedItems={invites} onSelectItem={onSelectInvite}/>
+                        <StyledCombobox onRemoveItem={onRemoveItem} selectedItems={invites} onSelectItem={onSelectInvite}/>
                         <Button isLight onClick={() => console.log(invites)}>Invite</Button>
                     </FooterContainer>
                 </div>

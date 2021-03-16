@@ -1,7 +1,7 @@
 import React, { ChangeEvent, useState } from 'react';
 import { Input } from '@chakra-ui/input';
 import { searchUser, User } from '../../entities/user';
-import { Container, InputContainer, UserOptionContainer, UserOption, UserOptionName, Email } from './Combobox.style';
+import { Container, InputContainer, UserOptionContainer, UserOption, UserOptionName, Email, StyledInviteChip } from './Combobox.style';
 import UserChip from '../UserChip';
 
 export type Invite = string | User;
@@ -9,6 +9,7 @@ export type Invite = string | User;
 interface Props {
   selectedItems: Invite[];
   onSelectItem: (item: Invite) => void;
+  onRemoveItem: (item: Invite) => void;
   className?: string;
 }
 
@@ -17,7 +18,19 @@ const isEmail = (value: string) => {
   return re.test(value.toLowerCase());
 }
 
-const Combobox: React.FC<Props> = ({ selectedItems, onSelectItem, className }) => {
+export const isInviteEmail = (invite: Invite) => typeof invite === "string"
+
+const getInviteName = (invite: Invite): string => {
+  if (isInviteEmail(invite)) return invite as string;
+  return (invite as User).firstName;
+}
+
+const getInviteEmail = (invite: Invite): string => {
+  if (isInviteEmail(invite)) return invite as string;
+  return (invite as User).email;
+}
+
+const Combobox: React.FC<Props> = ({ selectedItems, onSelectItem, className, onRemoveItem }) => {
   const [userOptions, setUserOptions] = useState<User[]>([]);
   const [value, setValue] = useState<string>("");
 
@@ -29,9 +42,23 @@ const Combobox: React.FC<Props> = ({ selectedItems, onSelectItem, className }) =
     )
   }
 
+  const onOptionChoose = (option: Invite) => {
+    setValue("");
+    setUserOptions([]);
+    onSelectItem(option);
+  }
+
   return (
     <Container className={className}>
       <InputContainer>
+        {selectedItems.map(item => (
+          <StyledInviteChip
+            key={getInviteEmail(item)}
+            name={getInviteName(item)}
+            leftIcon={isInviteEmail(item) ? <Email /> : <UserChip size={18} name={(item as User).firstName} />}
+            onRemove={() => onRemoveItem(item)}
+          />
+        ))}
         <Input
           value={value}
           onChange={handleChange}
@@ -44,7 +71,7 @@ const Combobox: React.FC<Props> = ({ selectedItems, onSelectItem, className }) =
       </InputContainer>
       <UserOptionContainer>
         {isEmail(value) && (
-          <UserOption>
+          <UserOption onClick={() => onOptionChoose(value)}>
             <Email />
             <UserOptionName>
               {value}
@@ -52,8 +79,8 @@ const Combobox: React.FC<Props> = ({ selectedItems, onSelectItem, className }) =
           </UserOption>
         )}
         {userOptions.map(user => (
-          <UserOption>
-            <UserChip name={user.firstName} />
+          <UserOption key={user.id} onClick={() => onOptionChoose(user)}>
+            <UserChip size={24} name={user.firstName} />
             <UserOptionName>
               {user.firstName}
             </UserOptionName>

@@ -25,11 +25,13 @@ ContentDescription.displayName = "ContentDescription";
 
 export const FooterContainer = styled.div`
   display: flex;
+  align-items: center;
 `;
 FooterContainer.displayName = "FooterContainer";
 
 export const StyledCombobox = styled(Combobox)`
   flex: 1;
   margin-right: 16px;
+  width: 300px;
 `;
 StyledCombobox.displayName = "StyledCombobox";

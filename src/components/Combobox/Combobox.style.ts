@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import { colors } from "../../stylesheet";
 import email from "../../icons/email.svg";
+import InviteChip from '../InviteChip';
 
 export const Container = styled.div`
   width: 100%;
@@ -52,3 +53,9 @@ export const Email = styled.img.attrs({ src: email })`
   width: 15px;
   margin-left: 5px;
 `;
+Email.displayName = "Email";
+
+export const StyledInviteChip = styled(InviteChip)`
+  margin: 2px;
+`
+StyledInviteChip.displayName = "StyledInviteChip";
