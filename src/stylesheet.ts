@@ -6,6 +6,7 @@ export const colors = {
   },
   grey: {
     500: "#DBE1E6",
-    900: "#8C9DB5",
+    700: "#8C9DB5",
+    900: "#383C56"
   },
 };

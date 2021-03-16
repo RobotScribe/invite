@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import { colors } from "./stylesheet";
+import Combobox from './components/Combobox'
 
 export const AppContainer = styled.div`
   display: flex;
@@ -17,6 +18,18 @@ export const ContentTitle = styled.div`
 ContentTitle.displayName = "ContentTitle";
 
 export const ContentDescription = styled.div`
-  color: ${colors.grey[900]};
+  color: ${colors.grey[700]};
+  margin-bottom: 24px;
 `;
 ContentDescription.displayName = "ContentDescription";
+
+export const FooterContainer = styled.div`
+  display: flex;
+`;
+FooterContainer.displayName = "FooterContainer";
+
+export const StyledCombobox = styled(Combobox)`
+  flex: 1;
+  margin-right: 16px;
+`;
+StyledCombobox.displayName = "StyledCombobox";
