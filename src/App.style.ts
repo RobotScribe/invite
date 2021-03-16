@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { colors } from "./stylesheet";
-import Combobox from './components/Combobox'
+import Combobox from "./components/Combobox";
 
 export const AppContainer = styled.div`
   display: flex;

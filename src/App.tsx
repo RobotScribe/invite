@@ -22,7 +22,7 @@ const App = () => {
                     <ContentTitle>Email invite</ContentTitle>
                     <ContentDescription>Send members an email invitation to join this workspace</ContentDescription>
                     <FooterContainer>
-                        <StyledCombobox users={[]} selectedItems={invites} onSelectItem={onSelectInvite}/>
+                        <StyledCombobox selectedItems={invites} onSelectItem={onSelectInvite}/>
                         <Button isLight onClick={() => console.log(invites)}>Invite</Button>
                     </FooterContainer>
                 </div>
