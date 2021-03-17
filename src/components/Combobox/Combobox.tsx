@@ -105,19 +105,19 @@ const Combobox: React.FC<Props> = ({ selectedItems, onSelectItem, className, onR
     };
   }, [filteredOptions, onOptionChoose, value, shouldDisplayInput, numberOfDisplayedOptions, hoverIndex]);
 
-  useEffect(() => {
-    const handler = (event: KeyboardEvent) => {
-      if (event.key === 'Backspace') {
-        if(value.length === 0 && selectedItems.length > 0) {
-          onRemoveItem(selectedItems[selectedItems.length - 1]);
-        }
-      }
-    };
-    window.addEventListener('keydown', handler);
-    return () => {
-      window.removeEventListener('keydown', handler);
-    };
-  }, [selectedItems, onRemoveItem, value]);
+  // useEffect(() => {
+  //   const handler = (event: KeyboardEvent) => {
+  //     if (event.key === 'Backspace') {
+  //       if(value.length === 0 && selectedItems.length > 0) {
+  //         onRemoveItem(selectedItems[selectedItems.length - 1]);
+  //       }
+  //     }
+  //   };
+  //   window.addEventListener('keydown', handler);
+  //   return () => {
+  //     window.removeEventListener('keydown', handler);
+  //   };
+  // }, [selectedItems, onRemoveItem, value]);
 
   useEffect(() => {
     const handler = (event: KeyboardEvent) => {
