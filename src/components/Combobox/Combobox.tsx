@@ -38,11 +38,16 @@ const Combobox: React.FC<Props> = ({ selectedItems, onSelectItem, className, onR
 
   const useSearchUsers = () =>
   useDebouncedSearch((value: string) => {
-    searchUser(value).then(
-      (users: User[]) => {
-        setUserOptions(users);
-      }
-    )
+    searchUser(value)
+      .then(
+        (users: User[]) => {
+          setUserOptions(users);
+        }
+      )
+      .catch(err => {
+        console.error(err);
+        setUserOptions([]);
+      })
   });
   const { value, setValue } = useSearchUsers();
 
