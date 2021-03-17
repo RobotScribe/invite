@@ -41,7 +41,7 @@ const InviteModal: React.FC<Props> = ({ isOpen, onClose, existingInvites, addInv
           <ContentDescription>Send members an email invitation to join this workspace</ContentDescription>
           <FooterContainer>
               <StyledCombobox existingItems={existingInvites} onRemoveItem={onRemoveItem} selectedItems={invites} onSelectItem={onSelectInvite}/>
-              <Button isLight onClick={onInvite}>Invite</Button>
+              <Button disabled={invites.length === 0} isLight onClick={onInvite}>Invite</Button>
           </FooterContainer>
       </div>
     </Modal>
