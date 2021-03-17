@@ -1,5 +1,6 @@
 import React, { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import { Input } from '@chakra-ui/input';
+import { useDebouncedSearch } from '../../services/useDebouncedSearch';
 import { searchUser, User } from '../../entities/user';
 import { Container, InputContainer, UserOptionContainer, UserOption, UserOptionName, Email, StyledInviteChip } from './Combobox.style';
 import UserChip from '../UserChip';
@@ -32,21 +33,35 @@ const getInviteEmail = (invite: Invite): string => {
 
 const Combobox: React.FC<Props> = ({ selectedItems, onSelectItem, className, onRemoveItem }) => {
   const [userOptions, setUserOptions] = useState<User[]>([]);
-  const [value, setValue] = useState<string>("");
   const [hoverIndex, setHoverIndex] = useState<number | null>(null);
 
-  useEffect(() => {
-    setHoverIndex(null);
-  }, [userOptions.length]);
+  const useSearchUsers = () =>
+  useDebouncedSearch((value: string) => {
+    searchUser(value).then(
+      (users: User[]) => {
+        setUserOptions(users);
+      }
+    )
+  });
+  const { value, setValue } = useSearchUsers();
 
   const userIds = useMemo<(string | null)[]>(
     () => selectedItems.map(item => isInviteEmail(item) ? null : (item as User).id),
     [selectedItems]
   );
 
+  const filteredOptions = useMemo(
+    () => userOptions.filter(user => !userIds.includes(user.id)),
+    [userOptions, userIds]
+  )
+
+  useEffect(() => {
+    setHoverIndex(null);
+  }, [filteredOptions.length]);
+
   const userEmails = useMemo<string[]>(
-    () => selectedItems.map(getInviteEmail).concat(userOptions.map(user => user.email)),
-    [selectedItems, userOptions]
+    () => selectedItems.map(getInviteEmail).concat(filteredOptions.map(user => user.email)),
+    [selectedItems, filteredOptions]
   );
 
   const shouldDisplayInput = useCallback(
@@ -54,33 +69,22 @@ const Combobox: React.FC<Props> = ({ selectedItems, onSelectItem, className, onR
     [userEmails, value]
   );
 
-  const numberOfDisplayedOptions = shouldDisplayInput() ? 1 : userOptions.length;
-
-  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value;
-    setValue(value);
-    searchUser(event.target.value).then(
-      (users: User[]) => {
-        const filteredUsers = users.filter(user => !userIds.includes(user.id))
-        setUserOptions(filteredUsers)
-      }
-    )
-  }
+  const numberOfDisplayedOptions = shouldDisplayInput() ? 1 : filteredOptions.length;
 
   const onOptionChoose = useCallback((option: Invite) => {
     setValue("");
     setUserOptions([]);
     onSelectItem(option);
-  }, [onSelectItem])
+  }, [onSelectItem, setValue])
 
   useEffect(() => {
     const handler = (event: KeyboardEvent) => {
       if (event.key === 'Enter') {
         if (numberOfDisplayedOptions === 1) {
-          onOptionChoose(shouldDisplayInput() ? value : userOptions[0]);
+          onOptionChoose(shouldDisplayInput() ? value : filteredOptions[0]);
         }
         if (numberOfDisplayedOptions > 1 && hoverIndex !== null) {
-          onOptionChoose(userOptions[hoverIndex]);
+          onOptionChoose(filteredOptions[hoverIndex]);
         }
       }
     };
@@ -88,7 +92,7 @@ const Combobox: React.FC<Props> = ({ selectedItems, onSelectItem, className, onR
     return () => {
       window.removeEventListener('keydown', handler);
     };
-  }, [userOptions, onOptionChoose, value, shouldDisplayInput, numberOfDisplayedOptions, hoverIndex]);
+  }, [filteredOptions, onOptionChoose, value, shouldDisplayInput, numberOfDisplayedOptions, hoverIndex]);
 
   useEffect(() => {
     const handler = (event: KeyboardEvent) => {
@@ -125,7 +129,7 @@ const Combobox: React.FC<Props> = ({ selectedItems, onSelectItem, className, onR
     return () => {
       window.removeEventListener('keydown', handler);
     };
-  }, [userOptions, hoverIndex, numberOfDisplayedOptions]);
+  }, [filteredOptions, hoverIndex, numberOfDisplayedOptions]);
 
   return (
     <Container className={className}>
@@ -140,7 +144,7 @@ const Combobox: React.FC<Props> = ({ selectedItems, onSelectItem, className, onR
         ))}
         <Input
           value={value}
-          onChange={handleChange}
+          onChange={(e: ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
           fontSize="sm"
           color="white"
           opacity="0.6"
@@ -156,7 +160,7 @@ const Combobox: React.FC<Props> = ({ selectedItems, onSelectItem, className, onR
               {value}
             </UserOptionName>
           </UserOption>
-        ) : userOptions.map((user, index) => (
+        ) : filteredOptions.map((user, index) => (
           <UserOption hovered={index === hoverIndex} key={user.id} onClick={() => onOptionChoose(user)}>
             <UserChip size={24} name={user.firstName} />
             <UserOptionName>
