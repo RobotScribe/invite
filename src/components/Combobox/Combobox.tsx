@@ -9,6 +9,7 @@ export type Invite = string | User;
 
 interface Props {
   selectedItems: Invite[];
+  existingItems: Invite[];
   onSelectItem: (item: Invite) => void;
   onRemoveItem: (item: Invite) => void;
   className?: string;
@@ -31,7 +32,7 @@ const getInviteEmail = (invite: Invite): string => {
   return (invite as User).email;
 }
 
-const Combobox: React.FC<Props> = ({ selectedItems, onSelectItem, className, onRemoveItem }) => {
+const Combobox: React.FC<Props> = ({ selectedItems, onSelectItem, className, onRemoveItem, existingItems }) => {
   const [userOptions, setUserOptions] = useState<User[]>([]);
   const [hoverIndex, setHoverIndex] = useState<number | null>(null);
 
@@ -50,9 +51,14 @@ const Combobox: React.FC<Props> = ({ selectedItems, onSelectItem, className, onR
     [selectedItems]
   );
 
+  const invitedUserIds = useMemo<(string | null)[]>(
+    () => existingItems.map(item => isInviteEmail(item) ? null : (item as User).id),
+    [existingItems]
+  );
+
   const filteredOptions = useMemo(
-    () => userOptions.filter(user => !userIds.includes(user.id)),
-    [userOptions, userIds]
+    () => userOptions.filter(user => !userIds.concat(invitedUserIds).includes(user.id)),
+    [userOptions, userIds, invitedUserIds]
   )
 
   useEffect(() => {
@@ -60,8 +66,8 @@ const Combobox: React.FC<Props> = ({ selectedItems, onSelectItem, className, onR
   }, [filteredOptions.length]);
 
   const userEmails = useMemo<string[]>(
-    () => selectedItems.map(getInviteEmail).concat(filteredOptions.map(user => user.email)),
-    [selectedItems, filteredOptions]
+    () => selectedItems.concat(existingItems).map(getInviteEmail).concat(filteredOptions.map(user => user.email)),
+    [selectedItems, filteredOptions, existingItems]
   );
 
   const shouldDisplayInput = useCallback(
